@@ -177,8 +177,7 @@ const groupRecords = (records, fcdMap) => {
     const nextEdges = prepareNextEdges(mapInfo)
 
     // if it's possible to go from one edge to another
-    // TODO: this can be memoized
-    const canGoFromTo = (beginEdgeId, endEdgeId) => {
+    const canGoFromToImpl = (beginEdgeId, endEdgeId) => {
       /*
          to go from one edge to another means to go from end node of 'beginEdgeId'
          to begin node of `endEdgeId`.
@@ -211,6 +210,12 @@ const groupRecords = (records, fcdMap) => {
       }
       return search(beginNode)
     }
+
+    const canGoFromTo = _.memoize(
+      canGoFromToImpl,
+      (eFrom, eTo) => `${eFrom}=>${eTo}`
+    )
+
     sortieRecords[mapStr] = _.flatMap(
       recordArrStage1,
       groupByConnectivity(canGoFromTo)
