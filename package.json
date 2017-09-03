@@ -1,0 +1,47 @@
+{
+  "name": "poi-plugin-kc3replay-export",
+  "version": "0.0.1",
+  "description": "Export battle records as KC3 replays.",
+  "main": "index.es",
+  "scripts": {
+    "lint": "eslint '**/*.es'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Javran/poi-plugin-kc3replay-export.git"
+  },
+  "author": {
+    "name": "Javran",
+    "url": "https://github.com/Javran"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Javran/poi-plugin-kc3replay-export/issues"
+  },
+  "homepage": "https://github.com/Javran/poi-plugin-kc3replay-export#readme",
+  "keywords": [
+    "kancolle"
+  ],
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015-node6": "^0.4.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^4.3.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.1.0"
+  },
+  "dependencies": {
+    "subtender": "^0.12.0"
+  },
+  "poiPlugin": {
+    "title": "KC3 Replay Export",
+    "icon": "play-circle-o",
+    "priority": 100
+  }
+}
