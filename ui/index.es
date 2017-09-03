@@ -41,6 +41,17 @@ const replayData = {
   battles: [],
 }
 
+/* const {ipc} = window
+ * const pluginBattleDetail = ipc.access('BattleDetail')
+ * recordInfo.map(r => {
+ *   pluginBattleDetail.showBattleWithTimestamp(
+ *     Number(r.id),
+ *     xs => console.log(xs)
+ *   )
+ * })
+ *
+ */
+
 const battles = recordInfo.map(r =>
   loadBattleRecord(r.id)
 )
@@ -108,5 +119,4 @@ const transformBattle = battlePoi => {
 replayData.lbas = transformLbas(battles[0].fleet.LBAC)
 replayData.battles = battles.map(transformBattle)
 
-console.log(replayData)
 console.log(JSON.stringify(replayData))
