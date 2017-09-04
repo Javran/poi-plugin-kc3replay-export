@@ -8,6 +8,7 @@ import { ExportMain } from './export-main'
 
 import { loadIndex, groupRecords } from '../load-index'
 import { loadBattleRecord } from '../load-battle-record'
+import { convertReplay } from '../convert-replay'
 
 const {$} = window
 
@@ -25,6 +26,8 @@ ReactDOM.render(
 const records = loadIndex()
 
 const recordInfo = groupRecords(records, _.get(store.getState(),'fcd.map'))['39-7'][0]
+
+console.log(convertReplay(recordInfo))
 
 const replayData = {
   world: 39,
