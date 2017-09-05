@@ -34,10 +34,16 @@ const convertReplay = poiReplayGroup => {
   }
 
   const mapStr = _.head(poiRecords).mapStr
-  // TODO: deal with PvP
-  const [_ignored, worldRaw, mapnumRaw] = /^(\d+)-(\d+)$/.exec(mapStr)
-  const world = Number(worldRaw)
-  const mapnum = Number(mapnumRaw)
+  const whichMap = (() => {
+    if (mapStr) {
+      const [_ignored, worldRaw, mapnumRaw] = /^(\d+)-(\d+)$/.exec(mapStr)
+      const world = Number(worldRaw)
+      const mapnum = Number(mapnumRaw)
+      return {world,mapnum}
+    } else {
+      return {world: 0, mapnum: 0}
+    }
+  })()
 
   const combined = battles[0].fleet.type
 
@@ -47,8 +53,9 @@ const convertReplay = poiReplayGroup => {
      and fleet4 boss support
    */
   const replayData = {
-    world,
-    mapnum,
+    ...whichMap,
+    // world,
+    // mapnum,
     // TODO
     fleetnum: 1,
     combined,
