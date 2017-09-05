@@ -106,6 +106,8 @@ const convertReplay = poiReplayGroup => {
   replayData.fleet4 = transformFleet(fleet4Poi)
 
   const transformLbas = lbasPoi => {
+    if (!lbasPoi)
+      return {}
     const transformSquadron = sq => {
       const planes = sq.api_plane_info.map(p => {
         const slot = p.poi_slot
