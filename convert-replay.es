@@ -5,7 +5,14 @@ import { loadBattleRecord } from './load-battle-record'
    input structure (poiReplayGroup) is either a battle record,
    or an Array of battle records sorted in the order they happened.
 
-   TODO: do verification by flag
+   TODO:
+
+   - normal fleet
+
+   - combined fleet: CTF / STF / TECF
+
+   - PvP
+
  */
 const convertReplay = poiReplayGroup => {
   const poiRecords =
@@ -14,10 +21,16 @@ const convertReplay = poiReplayGroup => {
   if (poiRecords.length === 0)
     throw new Error('cannot convert an empty record')
 
-  {
+  // starting for this line poiRecords cannot be empty.
+  const battles = poiRecords.map(r =>
+    loadBattleRecord(r.id)
+  )
+
+  if (poiRecords.length > 1) {
+    // mapStr should be exactly the same
     const mapStrs = _.uniq(poiRecords.map(r => r.mapStr))
     if (mapStrs.length !== 1)
-      throw new Error('mapStr is not unique')
+      console.warn('mapStr is not unique')
   }
 
   const mapStr = _.head(poiRecords).mapStr
@@ -25,6 +38,8 @@ const convertReplay = poiReplayGroup => {
   const [_ignored, worldRaw, mapnumRaw] = /^(\d+)-(\d+)$/.exec(mapStr)
   const world = Number(worldRaw)
   const mapnum = Number(mapnumRaw)
+
+  const combined = battles[0].fleet.type
 
   /*
      because battle records in poi does not record
@@ -36,8 +51,7 @@ const convertReplay = poiReplayGroup => {
     mapnum,
     // TODO
     fleetnum: 1,
-    // TODO
-    combined: 1,
+    combined,
     fleet1: null,
     fleet2: null,
     fleet3: null,
@@ -48,11 +62,10 @@ const convertReplay = poiReplayGroup => {
     battles: [],
   }
 
-  const battles = poiRecords.map(r =>
-    loadBattleRecord(r.id)
-  )
-
   const transformFleet = fleetPoi => {
+    if (!fleetPoi)
+      return {}
+
     const transformShip = ship => {
       const slots = [..._.take(ship.poi_slot,4), ship.poi_slot_ex]
       return {

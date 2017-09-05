@@ -23,7 +23,9 @@ ReactDOM.render(
   $("#content-root"))
 
 const records = loadIndex()
+const grouppedRecords = groupRecords(records, _.get(store.getState(),'fcd.map'))
 
-const recordInfo = groupRecords(records, _.get(store.getState(),'fcd.map'))['39-7'][0]
+const recordInfo = grouppedRecords['6-4'][0]
+// const recordInfo = grouppedRecords['39-7'][0]
 
 console.log(JSON.stringify(convertReplay(recordInfo)))
