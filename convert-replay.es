@@ -18,9 +18,11 @@ const convertReplay = poiReplayGroup => {
     loadBattleRecord(r.id)
   )
 
+  const fstBattle = poiBattles[0]
+
   // there's a typo in battle-details that 'Pratice' is used instead of 'Practice'
   const isPvP =
-    poiBattles[0].type === 'Practice' || poiBattles[0].type === 'Pratice'
+    fstBattle.type === 'Practice' || fstBattle.type === 'Pratice'
 
   if (poiRecords.length > 1) {
     if (isPvP)
@@ -45,7 +47,7 @@ const convertReplay = poiReplayGroup => {
     }
   })()
 
-  const combined = poiBattles[0].fleet.type
+  const combined = fstBattle.fleet.type
 
   /*
      because battle records in poi does not record
@@ -77,8 +79,8 @@ const convertReplay = poiReplayGroup => {
     return fleetPoi.map(transformShip)
   }
 
-  const fleet1 = transformFleet(poiBattles[0].fleet.main)
-  const fleet2 = transformFleet(poiBattles[0].fleet.escort)
+  const fleet1 = transformFleet(fstBattle.fleet.main)
+  const fleet2 = transformFleet(fstBattle.fleet.escort)
   // for support expeditions, we just use the first valid fleet info.
   const fleet3 = transformFleet(
     // take first
@@ -134,14 +136,29 @@ const convertReplay = poiReplayGroup => {
   }
 
   const transformBattle = battlePoi => {
-    // TODO: hacky.
     const node = battlePoi.map[2]
-    const data = battlePoi.packet[0]
-    const yasen = battlePoi.packet.length > 2 ? battlePoi.packet[1] : {}
+    const battlePackets = battlePoi.packet.filter(
+      p =>
+        p.poi_path.indexOf('battle_result') === -1 &&
+        p.poi_path.indexOf('battleresult') === -1
+    )
+    const [dayBattles,nightBattles] = _.partition(
+      battlePackets,
+      /*
+         api_midnight_flag is intended for indicating
+         whether we are allowed to proceed into yasen following
+         a day battle. here we check the presense of this flag
+         to determine whether this is a day battle
+         (since only day battle contains it)
+       */
+      p => 'api_midnight_flag' in p
+    )
+    const data = dayBattles[0] || {}
+    const yasen = nightBattles[0] || {}
     return {node, data, yasen}
   }
 
-  const lbas = transformLbas(poiBattles[0].fleet.LBAC)
+  const lbas = transformLbas(fstBattle.fleet.LBAC)
   const battles = poiBattles.map(transformBattle)
 
   return {
