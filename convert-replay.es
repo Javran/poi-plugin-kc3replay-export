@@ -5,14 +5,6 @@ import { loadBattleRecord } from './load-battle-record'
    input structure (poiReplayGroup) is either a battle record,
    or an Array of battle records sorted in the order they happened.
 
-   TODO:
-
-   - normal fleet
-
-   - combined fleet: CTF / STF / TECF
-
-   - PvP
-
  */
 const convertReplay = poiReplayGroup => {
   const poiRecords =
@@ -22,56 +14,49 @@ const convertReplay = poiReplayGroup => {
     throw new Error('cannot convert an empty record')
 
   // starting for this line poiRecords cannot be empty.
-  const battles = poiRecords.map(r =>
+  const poiBattles = poiRecords.map(r =>
     loadBattleRecord(r.id)
   )
 
+  // there's a typo in battle-details that 'Pratice' is used instead of 'Practice'
+  const isPvP =
+    poiBattles[0].type === 'Practice' || poiBattles[0].type === 'Pratice'
+
   if (poiRecords.length > 1) {
+    if (isPvP)
+      console.warn('PvP record should contain exactly one battle')
     // mapStr should be exactly the same
     const mapStrs = _.uniq(poiRecords.map(r => r.mapStr))
     if (mapStrs.length !== 1)
       console.warn('mapStr is not unique')
+    if (mapStrs[0] === '')
+      console.warn('expecting mapStr to be non-empty')
   }
 
-  const mapStr = _.head(poiRecords).mapStr
   const whichMap = (() => {
-    if (mapStr) {
+    if (isPvP) {
+      return {world: 0, mapnum: 0}
+    } else {
+      const mapStr = _.head(poiRecords).mapStr
       const [_ignored, worldRaw, mapnumRaw] = /^(\d+)-(\d+)$/.exec(mapStr)
       const world = Number(worldRaw)
       const mapnum = Number(mapnumRaw)
       return {world,mapnum}
-    } else {
-      return {world: 0, mapnum: 0}
     }
   })()
 
-  const combined = battles[0].fleet.type
+  const combined = poiBattles[0].fleet.type
 
   /*
      because battle records in poi does not record
      info of all fleets, let's fix fleet3 to always be normal support
      and fleet4 boss support
    */
-  const replayData = {
-    ...whichMap,
-    // world,
-    // mapnum,
-    // TODO
-    fleetnum: 1,
-    combined,
-    fleet1: null,
-    fleet2: null,
-    fleet3: null,
-    fleet4: null,
-    support1: 3,
-    support2: 4,
-    lbas: null,
-    battles: [],
-  }
-
+  const support1 = 3
+  const support2 = 4
   const transformFleet = fleetPoi => {
     if (!fleetPoi)
-      return {}
+      return []
 
     const transformShip = ship => {
       const slots = [..._.take(ship.poi_slot,4), ship.poi_slot_ex]
@@ -88,12 +73,10 @@ const convertReplay = poiReplayGroup => {
     return fleetPoi.map(transformShip)
   }
 
-  const fleet1Poi = battles[0].fleet.main
-  replayData.fleet1 = transformFleet(fleet1Poi)
-  const fleet2Poi = battles[0].fleet.escort
-  replayData.fleet2 = transformFleet(fleet2Poi)
+  const fleet1 = transformFleet(poiBattles[0].fleet.main)
+  const fleet2 = transformFleet(poiBattles[0].fleet.escort)
   const fleet3Poi = _.uniqWith(
-    battles.filter(
+    poiBattles.filter(
       b => b.type === 'Normal'
     ).map(
       b => b.fleet.support
@@ -101,7 +84,7 @@ const convertReplay = poiReplayGroup => {
       Array.isArray(xs) && xs.length > 0),
     _.isEqual)[0]
   const fleet4Poi = _.uniqWith(
-    battles.filter(
+    poiBattles.filter(
       b => b.type === 'Boss'
     ).map(
       b => b.fleet.support
@@ -109,8 +92,8 @@ const convertReplay = poiReplayGroup => {
       Array.isArray(xs) && xs.length > 0),
     _.isEqual)[0]
 
-  replayData.fleet3 = transformFleet(fleet3Poi)
-  replayData.fleet4 = transformFleet(fleet4Poi)
+  const fleet3 = transformFleet(fleet3Poi)
+  const fleet4 = transformFleet(fleet4Poi)
 
   const transformLbas = lbasPoi => {
     if (!lbasPoi)
@@ -144,10 +127,18 @@ const convertReplay = poiReplayGroup => {
     return {node, data, yasen}
   }
 
-  replayData.lbas = transformLbas(battles[0].fleet.LBAC)
-  replayData.battles = battles.map(transformBattle)
+  const lbas = transformLbas(poiBattles[0].fleet.LBAC)
+  const battles = poiBattles.map(transformBattle)
 
-  return replayData
+  return {
+    ...whichMap,
+    fleetnum: 1,
+    combined,
+    support1, support2,
+    fleet1, fleet2, fleet3, fleet4,
+    lbas,
+    battles,
+  }
 }
 
 export { convertReplay }
