@@ -59,7 +59,11 @@ const convertReplay = poiReplayGroup => {
       return []
 
     const transformShip = ship => {
-      const slots = [..._.take(ship.poi_slot,4), ship.poi_slot_ex]
+      // api_slot has 5 elements while we just need the first 4 of them.
+      const normalSlots = [0,1,2,3].map(slotInd =>
+        _.get(ship.poi_slot,slotInd)
+      )
+      const slots = [...normalSlots, ship.poi_slot_ex]
       return {
         mst_id: ship.api_ship_id,
         level: ship.api_lv,
@@ -75,25 +79,34 @@ const convertReplay = poiReplayGroup => {
 
   const fleet1 = transformFleet(poiBattles[0].fleet.main)
   const fleet2 = transformFleet(poiBattles[0].fleet.escort)
-  const fleet3Poi = _.uniqWith(
-    poiBattles.filter(
-      b => b.type === 'Normal'
-    ).map(
-      b => b.fleet.support
-    ).filter(xs =>
-      Array.isArray(xs) && xs.length > 0),
-    _.isEqual)[0]
-  const fleet4Poi = _.uniqWith(
-    poiBattles.filter(
-      b => b.type === 'Boss'
-    ).map(
-      b => b.fleet.support
-    ).filter(xs =>
-      Array.isArray(xs) && xs.length > 0),
-    _.isEqual)[0]
+  // for support expeditions, we just use the first valid fleet info.
+  const fleet3 = transformFleet(
+    // take first
+    _.head(
+      poiBattles.filter(
+        // only normal supports
+        b => b.type === 'Normal'
+      ).map(
+        b => b.fleet.support
+      ).filter(xs =>
+        Array.isArray(xs) && xs.length > 0
+      )
+    )
+  )
 
-  const fleet3 = transformFleet(fleet3Poi)
-  const fleet4 = transformFleet(fleet4Poi)
+  const fleet4 = transformFleet(
+    // take first
+    _.head(
+      poiBattles.filter(
+        // only boss support (should be <= 1)
+        b => b.type === 'Boss'
+      ).map(
+        b => b.fleet.support
+      ).filter(xs =>
+        Array.isArray(xs) && xs.length > 0
+      )
+    )
+  )
 
   const transformLbas = lbasPoi => {
     if (!lbasPoi)
@@ -121,6 +134,7 @@ const convertReplay = poiReplayGroup => {
   }
 
   const transformBattle = battlePoi => {
+    // TODO: hacky.
     const node = battlePoi.map[2]
     const data = battlePoi.packet[0]
     const yasen = battlePoi.packet.length > 2 ? battlePoi.packet[1] : {}
