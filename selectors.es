@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { generalComparator } from 'subtender'
+import { projectorToComparator } from 'subtender'
 import { createSelector } from 'reselect'
 import {
   extensionSelectorFactory,
@@ -18,7 +18,15 @@ const recordMetaSelector = createSelector(
 
 const mapIdListSelector = createSelector(
   recordMetaSelector,
-  rm => Object.keys(rm).sort(generalComparator)
+  rm => Object.keys(rm).sort(projectorToComparator(
+    mapId => {
+      if (mapId === 'pvp')
+        // PvP: always on top
+        return Infinity
+      const [_ignored, areaRaw, numRaw] = /^(\d+)-(\d+)$/.exec(mapId)
+      return Number(areaRaw)*10 + Number(numRaw)
+    }
+  )).reverse()
 )
 
 export {
