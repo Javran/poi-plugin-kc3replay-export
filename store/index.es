@@ -14,7 +14,7 @@ const reducer = (state = initState, action) => {
 }
 
 const actionCreator = {
-  recordMeta: newState => ({
+  recordMetaReplace: newState => ({
     type: '@poi-plugin-kc3replay-export@recordMeta@Replace',
     newState,
   }),
