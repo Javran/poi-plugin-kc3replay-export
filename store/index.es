@@ -1,5 +1,6 @@
 import { bindActionCreators } from 'redux'
 import { store } from 'views/create-store'
+import { modifyObject } from 'subtender'
 
 const initState = {
   recordMeta: {},
@@ -8,7 +9,7 @@ const initState = {
 const reducer = (state = initState, action) => {
   if (action.type === '@poi-plugin-kc3replay-export@recordMeta@Replace') {
     const {newState} = action
-    return newState
+    return modifyObject('recordMeta', () => newState)(state)
   }
   return state
 }
@@ -31,6 +32,7 @@ const asyncBoundActionCreator = (func, dispatch=store.dispatch) =>
     withBoundActionCreator(func, dispatch)))
 
 export {
+  initState,
   reducer,
   actionCreator,
   mapDispatchToProps,
