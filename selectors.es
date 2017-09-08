@@ -39,6 +39,45 @@ const mapIdSelector = createSelector(
   ui => ui.mapId
 )
 
+/*
+   produces an Array of the following structure:
+
+   - timeSpan: <number> or [<number>,<number>]
+   - id: for single record it's id property, for an Array it's the id property of first one
+   - desc: description string
+ */
+const recordDetailListSelector = createSelector(
+  recordMetaSelector,
+  mapIdSelector,
+  (recordMeta, mapId) => {
+    if (_.isEmpty(recordMeta) || !mapId)
+      return []
+    const recordList = recordMeta[mapId]
+    if (!Array.isArray(recordList) || recordList.length === 0)
+      return []
+
+    const mkRecordDetail = rawRecord => {
+      if (Array.isArray(rawRecord)) {
+        const firstRecord = _.head(rawRecord)
+        const lastRecord = _.last(rawRecord)
+        return {
+          timeSpan: [firstRecord.time, lastRecord.time],
+          id: firstRecord.id,
+          desc: `Sortie Record ${rawRecord.map(r => r.route).join('=>')}`,
+        }
+      } else {
+        return {
+          timeSpan: rawRecord.time,
+          id: rawRecord.id,
+          desc: rawRecord.desc,
+        }
+      }
+    }
+
+    return recordList.map(mkRecordDetail)
+  }
+)
+
 export {
   extSelector,
   recordMetaSelector,
@@ -46,4 +85,5 @@ export {
 
   uiSelector,
   mapIdSelector,
+  recordDetailListSelector,
 }

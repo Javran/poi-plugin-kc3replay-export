@@ -2,7 +2,7 @@ import { modifyObject } from 'subtender'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { ListGroup, ListGroupItem } from 'react-bootstrap'
-import { mapIdListSelector, mapIdSelector } from '../selectors'
+import { mapIdListSelector, mapIdSelector, recordDetailListSelector } from '../selectors'
 import { PTyp } from '../ptyp'
 import { mapDispatchToProps } from '../store'
 
@@ -13,6 +13,7 @@ class ExportMainImpl extends Component {
   static propTypes = {
     mapIdList: PTyp.array.isRequired,
     mapId: PTyp.string,
+    recordDetailList: PTyp.array.isRequired,
     uiModify: PTyp.func.isRequired,
   }
 
@@ -26,7 +27,7 @@ class ExportMainImpl extends Component {
     )
 
   render() {
-    const {mapIdList, mapId} = this.props
+    const {mapIdList, mapId, recordDetailList} = this.props
     return (
       <div style={{display: 'flex'}}>
         <div style={{flex: 1}}>
@@ -39,6 +40,30 @@ class ExportMainImpl extends Component {
                   <div className={curMapId === mapId ? 'text-primary' : ''}>
                     {pprMapId(curMapId)}
                   </div>
+                </ListGroupItem>
+              ))
+            }
+          </ListGroup>
+        </div>
+        <div style={{flex: 1}}>
+          <ListGroup>
+            {
+              recordDetailList.map(rd => (
+                <ListGroupItem
+                  key={rd.id} style={{padding: '5px 10px'}}>
+                  <div>
+                    {
+                      (() => {
+                        const tsToStr = x => String(new Date(x))
+                        if (Array.isArray(rd.timeSpan)) {
+                          return `${tsToStr(rd.timeSpan[0])} ~ ${tsToStr(rd.timeSpan[1])}`
+                        } else {
+                          return tsToStr(rd.timeSpan)
+                        }
+                      })()
+                    }
+                  </div>
+                  {JSON.stringify(rd)}
                 </ListGroupItem>
               ))
             }
@@ -57,6 +82,7 @@ const ExportMain = connect(
     return {
       mapIdList: mapIdListSelector(state),
       mapId: mapIdSelector(state),
+      recordDetailList: recordDetailListSelector(state),
     }
   },
   mapDispatchToProps,
