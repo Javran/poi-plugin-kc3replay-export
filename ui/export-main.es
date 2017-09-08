@@ -45,7 +45,7 @@ class ExportMainImpl extends Component {
             }
           </ListGroup>
         </div>
-        <div style={{flex: 1}}>
+        <div style={{flex: 4}}>
           <ListGroup>
             {
               recordDetailList.map(rd => (
@@ -63,14 +63,11 @@ class ExportMainImpl extends Component {
                       })()
                     }
                   </div>
-                  {JSON.stringify(rd)}
+                  <div style={{fontSize: '1.5em'}}>{rd.desc}</div>
                 </ListGroupItem>
               ))
             }
           </ListGroup>
-        </div>
-        <div style={{flex: 4}}>
-          TODO
         </div>
       </div>
     )
