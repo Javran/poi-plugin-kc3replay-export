@@ -4,6 +4,10 @@ import { modifyObject } from 'subtender'
 
 const initState = {
   recordMeta: {},
+  ui: {
+    mapId: null,
+    recordId: null,
+  },
 }
 
 const reducer = (state = initState, action) => {
@@ -11,6 +15,12 @@ const reducer = (state = initState, action) => {
     const {newState} = action
     return modifyObject('recordMeta', () => newState)(state)
   }
+
+  if (action.type === '@poi-plugin-kc3replay-export@ui@Modify') {
+    const {modifier} = action
+    return modifyObject('ui', ui => modifier(ui))(state)
+  }
+
   return state
 }
 
@@ -18,6 +28,10 @@ const actionCreator = {
   recordMetaReplace: newState => ({
     type: '@poi-plugin-kc3replay-export@recordMeta@Replace',
     newState,
+  }),
+  uiModify: modifier => ({
+    type: '@poi-plugin-kc3replay-export@ui@Modify',
+    modifier,
   }),
 }
 

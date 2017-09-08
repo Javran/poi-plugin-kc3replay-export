@@ -29,8 +29,21 @@ const mapIdListSelector = createSelector(
   )).reverse()
 )
 
+const uiSelector = createSelector(
+  extSelector,
+  e => e.ui
+)
+
+const mapIdSelector = createSelector(
+  uiSelector,
+  ui => ui.mapId
+)
+
 export {
   extSelector,
   recordMetaSelector,
   mapIdListSelector,
+
+  uiSelector,
+  mapIdSelector,
 }
