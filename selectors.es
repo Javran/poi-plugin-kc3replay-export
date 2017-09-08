@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { projectorToComparator } from 'subtender'
 import { createSelector } from 'reselect'
 import {
+  fcdSelector,
   extensionSelectorFactory,
 } from 'views/utils/selectors'
 
@@ -39,6 +40,24 @@ const mapIdSelector = createSelector(
   ui => ui.mapId
 )
 
+const routeToNodeEndFuncSelector = createSelector(
+  fcdSelector,
+  mapIdSelector,
+  (fcd, mapId) => {
+    if (!mapId || mapId === 'pvp')
+      return _.identity
+    const routeInfo = _.get(fcd,['map',mapId,'route'])
+    if (!routeInfo)
+      return _.identity
+    return edgeId => {
+      const eInfo = _.get(routeInfo,edgeId)
+      if (!eInfo)
+        return edgeId
+      return eInfo[1]
+    }
+  }
+)
+
 /*
    produces an Array of the following structure:
 
@@ -49,7 +68,8 @@ const mapIdSelector = createSelector(
 const recordDetailListSelector = createSelector(
   recordMetaSelector,
   mapIdSelector,
-  (recordMeta, mapId) => {
+  routeToNodeEndFuncSelector,
+  (recordMeta, mapId, routeToNodeEndFunc) => {
     if (_.isEmpty(recordMeta) || !mapId)
       return []
     const recordList = recordMeta[mapId]
@@ -63,7 +83,7 @@ const recordDetailListSelector = createSelector(
         return {
           timeSpan: [firstRecord.time, lastRecord.time],
           id: firstRecord.id,
-          desc: `Sortie Record ${rawRecord.map(r => r.route).join('=>')}`,
+          desc: `Sortie Record ${rawRecord.map(r => routeToNodeEndFunc(r.route)).join('=>')}`,
         }
       } else {
         return {
