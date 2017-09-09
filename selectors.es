@@ -80,8 +80,12 @@ const recordDetailListSelector = createSelector(
       if (Array.isArray(rawRecord)) {
         const firstRecord = _.head(rawRecord)
         const lastRecord = _.last(rawRecord)
+        const timeSpan =
+          rawRecord.length === 1 ?
+            firstRecord.time :
+            [firstRecord.time, lastRecord.time]
         return {
-          timeSpan: [firstRecord.time, lastRecord.time],
+          timeSpan,
           id: firstRecord.id,
           desc: `Sortie Record ${rawRecord.map(r => routeToNodeEndFunc(r.route)).join('=>')}`,
         }
