@@ -2,8 +2,19 @@ import { modifyObject } from 'subtender'
 import { createStructuredSelector } from 'reselect'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { ListGroup, ListGroupItem, Panel } from 'react-bootstrap'
-import { mapIdListSelector, mapIdSelector, recordDetailListSelector } from '../selectors'
+import {
+  ListGroup,
+  ListGroupItem,
+  Panel,
+  Pagination,
+} from 'react-bootstrap'
+import {
+  mapIdListSelector,
+  mapIdSelector,
+  pageRangeSelector,
+  activePageSelector,
+  activeRecordDetailListSelector,
+} from '../selectors'
 import { PTyp } from '../ptyp'
 import { mapDispatchToProps } from '../store'
 
@@ -15,6 +26,8 @@ class ExportMainImpl extends Component {
     mapIdList: PTyp.array.isRequired,
     mapId: PTyp.string,
     recordDetailList: PTyp.array.isRequired,
+    pageRange: PTyp.number.isRequired,
+    activePage: PTyp.number.isRequired,
     uiModify: PTyp.func.isRequired,
   }
 
@@ -28,7 +41,7 @@ class ExportMainImpl extends Component {
     )
 
   render() {
-    const {mapIdList, mapId, recordDetailList} = this.props
+    const {mapIdList, mapId, recordDetailList, pageRange, activePage} = this.props
     return (
       <div style={{display: 'flex'}}>
         <div style={{flex: 1}}>
@@ -47,6 +60,17 @@ class ExportMainImpl extends Component {
           </ListGroup>
         </div>
         <div style={{flex: 4}}>
+          <Pagination
+            items={pageRange}
+            activePage={activePage}
+            prev
+            next
+            first
+            last
+            ellipsis
+            boundaryLinks
+            maxButtons={5}
+          />
           <ListGroup>
             {
               recordDetailList.map(rd => (
@@ -87,7 +111,9 @@ const ExportMain = connect(
   createStructuredSelector({
     mapIdList: mapIdListSelector,
     mapId: mapIdSelector,
-    recordDetailList: recordDetailListSelector,
+    recordDetailList: activeRecordDetailListSelector,
+    pageRange: pageRangeSelector,
+    activePage: activePageSelector,
   }),
   mapDispatchToProps,
 )(ExportMainImpl)

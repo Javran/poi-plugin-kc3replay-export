@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { projectorToComparator } from 'subtender'
+import { enumFromTo, projectorToComparator } from 'subtender'
 import { createSelector } from 'reselect'
 import {
   fcdSelector,
@@ -7,6 +7,9 @@ import {
 } from 'views/utils/selectors'
 
 import { initState } from './store'
+
+// TODO: reduxify
+const itemsPerPage = 20
 
 const extSelector = createSelector(
   extensionSelectorFactory('poi-plugin-kc3replay-export'),
@@ -38,6 +41,11 @@ const uiSelector = createSelector(
 const mapIdSelector = createSelector(
   uiSelector,
   ui => ui.mapId
+)
+
+const activePageSelector = createSelector(
+  uiSelector,
+  ui => ui.activePage
 )
 
 const routeToNodeEndFuncSelector = createSelector(
@@ -102,6 +110,22 @@ const recordDetailListSelector = createSelector(
   }
 )
 
+const pageRangeSelector = createSelector(
+  recordDetailListSelector,
+  recordDetailList =>
+    Math.ceil(recordDetailList.length / itemsPerPage)
+)
+
+const activeRecordDetailListSelector = createSelector(
+  recordDetailListSelector,
+  activePageSelector,
+  (recordDetailList, activePage) => {
+    const beginInd = (activePage-1)*itemsPerPage
+    const endInd = Math.min(beginInd+itemsPerPage-1, recordDetailList.length-1)
+    return enumFromTo(beginInd, endInd).map(ind => recordDetailList[ind])
+  }
+)
+
 export {
   extSelector,
   recordMetaSelector,
@@ -109,5 +133,8 @@ export {
 
   uiSelector,
   mapIdSelector,
+  activePageSelector,
   recordDetailListSelector,
+  pageRangeSelector,
+  activeRecordDetailListSelector,
 }

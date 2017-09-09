@@ -9,6 +9,7 @@ const initState = {
   ui: {
     mapId: null,
     recordId: null,
+    activePage: 1,
   },
 }
 
