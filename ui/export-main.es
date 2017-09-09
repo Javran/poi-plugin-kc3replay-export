@@ -1,4 +1,5 @@
 import { modifyObject } from 'subtender'
+import { createStructuredSelector } from 'reselect'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { ListGroup, ListGroupItem } from 'react-bootstrap'
@@ -75,13 +76,11 @@ class ExportMainImpl extends Component {
 }
 
 const ExportMain = connect(
-  state => {
-    return {
-      mapIdList: mapIdListSelector(state),
-      mapId: mapIdSelector(state),
-      recordDetailList: recordDetailListSelector(state),
-    }
-  },
+  createStructuredSelector({
+    mapIdList: mapIdListSelector,
+    mapId: mapIdSelector,
+    recordDetailList: recordDetailListSelector,
+  }),
   mapDispatchToProps,
 )(ExportMainImpl)
 
