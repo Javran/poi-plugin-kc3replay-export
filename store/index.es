@@ -4,6 +4,8 @@ import { modifyObject } from 'subtender'
 
 const initState = {
   recordMeta: {},
+  // record id => record
+  battleRecords: {},
   ui: {
     mapId: null,
     recordId: null,
