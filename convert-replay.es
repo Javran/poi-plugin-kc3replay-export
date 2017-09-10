@@ -61,6 +61,8 @@ const convertReplay = poiReplayGroup => {
       return []
 
     const transformShip = ship => {
+      if (!ship)
+        return false
       // api_slot has 5 elements while we just need the first 4 of them.
       const normalSlots = [0,1,2,3].map(slotInd =>
         _.get(ship.poi_slot,slotInd)
@@ -76,7 +78,7 @@ const convertReplay = poiReplayGroup => {
         ace: slots.map(eqp => _.get(eqp, 'api_alv', -1)),
       }
     }
-    return fleetPoi.map(transformShip)
+    return _.compact(fleetPoi.map(transformShip))
   }
 
   const fleet1 = transformFleet(fstBattle.fleet.main)
