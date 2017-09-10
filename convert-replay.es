@@ -139,11 +139,14 @@ const convertReplay = poiReplayGroup => {
 
   const transformBattle = battlePoi => {
     const node = battlePoi.map[2]
-    const battlePackets = battlePoi.packet.filter(
+    // TODO: might need _resultPackets for map-HP
+    const [battlePackets, _resultPackets] = _.partition(
+      battlePoi.packet,
       p =>
         p.poi_path.indexOf('battle_result') === -1 &&
         p.poi_path.indexOf('battleresult') === -1
     )
+
     const [dayBattles,nightBattles] = _.partition(
       battlePackets,
       /*

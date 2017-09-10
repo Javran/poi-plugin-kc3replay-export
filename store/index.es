@@ -67,6 +67,7 @@ const actionCreator = {
 
       if (recordMetaInd === -1) {
         console.warn(`invalid record id: ${recordId}`)
+        return
       }
 
       try {
