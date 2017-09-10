@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { modifyObject } from 'subtender'
 import { createStructuredSelector } from 'reselect'
 import React, { Component } from 'react'
@@ -7,6 +8,7 @@ import {
   ListGroupItem,
   Panel,
   Pagination,
+  FormControl,
 } from 'react-bootstrap'
 import {
   mapIdListSelector,
@@ -14,6 +16,7 @@ import {
   pageRangeSelector,
   activePageSelector,
   activeRecordDetailListSelector,
+  battleRecordsSelector,
 } from '../selectors'
 import { PTyp } from '../ptyp'
 import { mapDispatchToProps } from '../store'
@@ -29,6 +32,8 @@ class ExportMainImpl extends Component {
     pageRange: PTyp.number.isRequired,
     activePage: PTyp.number.isRequired,
     uiModify: PTyp.func.isRequired,
+    requestBattleRecord: PTyp.func.isRequired,
+    battleRecords: PTyp.object.isRequired,
   }
 
   static defaultProps = {
@@ -37,11 +42,26 @@ class ExportMainImpl extends Component {
 
   handleMapIdChange = mapId => () =>
     this.props.uiModify(
-      modifyObject('mapId', () => mapId)
+      _.flow(
+        modifyObject('mapId', () => mapId),
+        modifyObject('activePage', () => 1)
+      )
+    )
+
+  handleSelectPage = activePage =>
+    this.props.uiModify(
+      modifyObject('activePage', () => activePage)
     )
 
   render() {
-    const {mapIdList, mapId, recordDetailList, pageRange, activePage} = this.props
+    const {
+      mapIdList, mapId, recordDetailList, pageRange, activePage,
+      battleRecords,
+      requestBattleRecord,
+    } = this.props
+    recordDetailList.map(
+      rd => requestBattleRecord(rd.id)
+    )
     return (
       <div style={{display: 'flex'}}>
         <div style={{flex: 1}}>
@@ -70,6 +90,7 @@ class ExportMainImpl extends Component {
             ellipsis
             boundaryLinks
             maxButtons={5}
+            onSelect={this.handleSelectPage}
           />
           <ListGroup>
             {
@@ -95,7 +116,14 @@ class ExportMainImpl extends Component {
                         <div style={{fontSize: '1.5em'}}>{rd.desc}</div>
                       </div>)
                     }>
-                    TODO: lazy load
+                    {
+                      battleRecords[rd.id] ? (
+                        <FormControl
+                          componentClass="textarea"
+                          value={JSON.stringify(battleRecords[rd.id])}
+                        />
+                      ) : (<div>Loading</div>)
+                    }
                   </Panel>
                 </ListGroupItem>
               ))
@@ -114,6 +142,7 @@ const ExportMain = connect(
     recordDetailList: activeRecordDetailListSelector,
     pageRange: pageRangeSelector,
     activePage: activePageSelector,
+    battleRecords: battleRecordsSelector,
   }),
   mapDispatchToProps,
 )(ExportMainImpl)

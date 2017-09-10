@@ -20,6 +20,11 @@ const recordMetaSelector = createSelector(
   e => e.recordMeta
 )
 
+const battleRecordsSelector = createSelector(
+  extSelector,
+  e => e.battleRecords
+)
+
 const mapIdListSelector = createSelector(
   recordMetaSelector,
   rm => Object.keys(rm).sort(projectorToComparator(
@@ -137,4 +142,5 @@ export {
   recordDetailListSelector,
   pageRangeSelector,
   activeRecordDetailListSelector,
+  battleRecordsSelector,
 }
